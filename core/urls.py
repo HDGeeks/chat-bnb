@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('chat/', include('chat.api.urls')),
+    path('chat/', include('chat.urls')),
 
  
    

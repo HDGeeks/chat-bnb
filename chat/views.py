@@ -8,23 +8,29 @@ from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
 
-from .serializers import ChatSerializer
+from .serializers import ChatSerializer,UserSerializer,ContactSerializer
 
 
 
-class ChatViewset(ModelViewSet):
-    serializer_class = ChatSerializer
-    queryset = Chat.objects.all()
+# class ChatViewset(ModelViewSet):
+#     serializer_class = ChatSerializer
+#     queryset = Chat.objects.all()
 
-    def get_queryset(self):
-        queryset = Chat.objects.all()
-        username = self.request.query_params.get('username', None)
-        if username is not None:
-            contact = get_user_contact(username)
-            queryset = contact.chats.all()
-        return queryset
+#     def get_queryset(self):
+#         queryset = Chat.objects.all()
+#         username = self.request.query_params.get('username', None)
+#         if username is not None:
+#             contact = get_user_contact(username)
+#             queryset = contact.chats.all()
+#         return queryset
 
+class UserViewset(ModelViewSet):
+    queryset=User.objects.all()
+    serializer_class=UserSerializer
 
+class ContactViewset(ModelViewSet):
+    queryset=Contact.objects.all()
+    serializer_class=ContactSerializer
 class ChatListView(ListAPIView):
     serializer_class = ChatSerializer
     permission_classes = (permissions.AllowAny, )
@@ -71,7 +77,7 @@ def get_last_10_messages(chatId):
 
 
 def get_user_contact(username):
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(User, UserId=username)
     return get_object_or_404(Contact, user=user)
 
 

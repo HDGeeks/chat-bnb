@@ -1,10 +1,19 @@
 from rest_framework import serializers
+from .views import get_user_contact
+from .models import Chat, Contact,User
 
-from chat.models import Chat, Contact
 
-
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields='__all__'
 
 class ContactSerializer(serializers.StringRelatedField):
+
+    class Meta:
+        model=Contact
+        fields="__all__"
+
     def to_internal_value(self, value):
         return value
 
