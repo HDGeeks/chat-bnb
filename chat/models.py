@@ -2,7 +2,7 @@ from django.db import models
 
 
 class User(models.Model):
-    REQUIRED_FIELDS = ('userId')
+    REQUIRED_FIELDS = ('UserId')
     UserId = models.CharField(max_length=255, blank=True, primary_key=True)
 
     def __str__(self):
@@ -11,10 +11,10 @@ class User(models.Model):
 class Contact(models.Model):
     user = models.ForeignKey(
         User, related_name='friends', on_delete=models.CASCADE)
-    friends = models.ManyToManyField('self', blank=True)
+    friends = models.ManyToManyField('User', blank=True)
 
     def __str__(self):
-        return self.user.username
+        return f'{ self.user.UserId}'
 
 
 class Message(models.Model):
@@ -24,7 +24,7 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.contact.user.username
+        return self.contact.user.UserId
 
 
 class Chat(models.Model):

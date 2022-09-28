@@ -1,21 +1,24 @@
 from rest_framework import serializers
-#from .views import get_user_contact
-from .models import Chat, Contact,User
 
+from .models import Chat, Contact,User,Message
 
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Message
+        fields='__all__'
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
         fields='__all__'
 
-class ContactSerializer(serializers.StringRelatedField):
+class ContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=Contact
         fields="__all__"
 
-    def to_internal_value(self, value):
-        return value
+    # def to_internal_value(self, value):
+    #     return value
 
 
 class ChatSerializer(serializers.ModelSerializer):
@@ -26,16 +29,16 @@ class ChatSerializer(serializers.ModelSerializer):
         fields = ('id', 'messages', 'participants')
         read_only = ('id')
 
-    def create(self, validated_data):
-        print(validated_data)
-        participants = validated_data.pop('participants')
-        chat = Chat()
-        chat.save()
-        for username in participants:
-            contact = get_user_contact(username)
-            chat.participants.add(contact)
-        chat.save()
-        return chat
+    # def create(self, validated_data):
+    #     print(validated_data)
+    #     participants = validated_data.pop('participants')
+    #     chat = Chat()
+    #     chat.save()
+    #     for username in participants:
+    #         contact = get_user_contact(username)
+    #         chat.participants.add(contact)
+    #     chat.save()
+    #     return chat
 
 
 # do in python shell to see how to serialize data

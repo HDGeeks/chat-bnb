@@ -10,6 +10,15 @@ from .views import get_last_10_messages, get_user_contact, get_current_chat
 
 class ChatConsumer(WebsocketConsumer):
 
+    def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name,
+            self.channel_name
+        )
+        self.accept()
+
     def fetch_messages(self, data):
         messages = get_last_10_messages(data['chatId'])
         content = {
@@ -51,14 +60,7 @@ class ChatConsumer(WebsocketConsumer):
         'new_message': new_message
     }
 
-    def connect(self):
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
-        )
-        self.accept()
+  
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
