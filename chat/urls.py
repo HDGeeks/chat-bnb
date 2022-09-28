@@ -1,9 +1,9 @@
 from django.urls import path, re_path
 from rest_framework import routers
 
-from chat.views import UserViewset,ContactViewset
+from .views import UserViewset,ContactViewset
 
-from chat.views import (ChatCreateView, ChatDeleteView, ChatDetailView,
+from .views import (ChatCreateView, ChatDeleteView, ChatDetailView,
                     ChatListView, ChatUpdateView)
 
 app_name = 'chat'
