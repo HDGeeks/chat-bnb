@@ -8,7 +8,7 @@ from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
 
-from .serializers import ChatSerializer,UserSerializer,ContactSerializer
+from chat.serializers import ChatSerializer,UserSerializer,ContactSerializer
 
 
 
