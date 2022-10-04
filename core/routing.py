@@ -1,21 +1,22 @@
-# from channels.auth import AuthMiddlewareStack
-# from channels.routing import ProtocolTypeRouter, URLRouter
-# import chat.routing
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.core.asgi import get_asgi_application
 
-# application = ProtocolTypeRouter({
-#     'websocket': AuthMiddlewareStack(
-#         URLRouter(
-#             chat.routing.websocket_urlpatterns
-#         )
-#     ),
-# })
-from django.urls import path
+from chat import routing
+from .wsgi import *
 
-from chat.consumers import ChatConsumer, NotificationConsumer,NotificationConsumer
+from .websocket import websocket_application
 
-websocket_urlpatterns = [ 
-    path("chats/<conversation_name>/", ChatConsumer.as_asgi()),
-    path("notifications/", NotificationConsumer.as_asgi()),
-    
-    ]
-    
+django_application=get_asgi_application
+async def application(scope, receive, send):
+    if scope["type"] == "http":
+        await django_application(scope, receive, send)
+    elif scope["type"] == "websocket":
+        await websocket_application(scope, receive, send)
+    else:
+        raise NotImplementedError(f"Unknown scope type {scope['type']}")
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": URLRouter(routing.websocket_urlpatterns),
+})
