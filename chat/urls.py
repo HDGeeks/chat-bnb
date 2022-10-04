@@ -2,7 +2,7 @@
 from django.conf import settings
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from .views import MessageViewset, UserViewset,ConversationViewset
+from .views import UserViewset,MessageViewSet,ConversationViewSet
 
 if settings.DEBUG:
     router = DefaultRouter()
@@ -12,7 +12,7 @@ else:
 
 
 router.register(r'user', UserViewset)
-router.register(r'chat', ConversationViewset)
-router.register(r'message', MessageViewset)
+router.register(r'conversation', ConversationViewSet)
+router.register(r'message', MessageViewSet)
 
 urlpatterns = router.urls

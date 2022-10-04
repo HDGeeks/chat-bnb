@@ -36,8 +36,6 @@ class ConversationViewSet(ModelViewSet):
         return {"request": self.request, "user": self.request['UserId']}
 
 
-
-
 class MessageViewSet(ModelViewSet):
     serializer_class = MessageSerializer
     queryset = Message.objects.none()
