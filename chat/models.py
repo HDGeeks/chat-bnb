@@ -1,36 +1,50 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
 class User(models.Model):
-    REQUIRED_FIELDS = ('UserId')
+    REQUIRED_FIELDS = ('UserId','username')
     UserId = models.CharField(max_length=255, blank=True, primary_key=True)
+    username=models.CharField(max_length=255,blank=True,null=False)
 
     def __str__(self):
         return f"{self.UserId}"
 
-class Contact(models.Model):
-    user = models.ForeignKey(
-        User, related_name='friends', on_delete=models.CASCADE)
-    friends = models.ManyToManyField('User', blank=True)
+
+class Conversation(models.Model):
+   
+    name = models.CharField(max_length=128)
+    online = models.ManyToManyField(to=User, blank=True)
+
+    def get_online_count(self):
+        return self.online.count()
+
+    def join(self, user):
+        self.online.add(user)
+        self.save()
+
+    def leave(self, user):
+        self.online.remove(user)
+        self.save()
 
     def __str__(self):
-        return f'{ self.user.UserId}'
+        return f"{self.name} ({self.get_online_count()})"
 
 
 class Message(models.Model):
-    contact = models.ForeignKey(
-        Contact, related_name='messages', on_delete=models.CASCADE)
-    content = models.TextField()
+    
+    conversation = models.ForeignKey(
+        Conversation, on_delete=models.CASCADE, related_name="messages"
+    )
+    from_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="messages_from_me"
+    )
+    to_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="messages_to_me"
+    )
+    content = models.CharField(max_length=512)
     timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.contact.user.UserId
-
-
-class Chat(models.Model):
-    participants = models.ManyToManyField(
-        Contact, related_name='chats', blank=True)
-    messages = models.ManyToManyField(Message, blank=True)
-
-    def __str__(self):
-        return "{}".format(self.pk)
+        return f"From {self.from_user.username} to {self.to_user.username}: {self.content} [{self.timestamp}]"

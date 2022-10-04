@@ -1,51 +1,59 @@
 from rest_framework import serializers
+from .models import Message, Conversation,User
 
-from .models import Chat, Contact,User,Message
-
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Message
-        fields='__all__'
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model=User
-        fields='__all__'
+        model = User
+        fields=['UserId','username']
+        
 
-class ContactSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model=Contact
-        fields="__all__"
-
-    # def to_internal_value(self, value):
-    #     return value
-
-
-class ChatSerializer(serializers.ModelSerializer):
-    participants = ContactSerializer(many=True)
+class MessageSerializer(serializers.ModelSerializer):
+    from_user = serializers.SerializerMethodField()
+    to_user = serializers.SerializerMethodField()
+    conversation = serializers.SerializerMethodField()
 
     class Meta:
-        model = Chat
-        fields = ('id', 'messages', 'participants')
-        read_only = ('id')
+        model = Message
+        fields = (
+            "id",
+            "conversation",
+            "from_user",
+            "to_user",
+            "content",
+            "timestamp",
+            "read",
+        )
 
-    # def create(self, validated_data):
-    #     print(validated_data)
-    #     participants = validated_data.pop('participants')
-    #     chat = Chat()
-    #     chat.save()
-    #     for username in participants:
-    #         contact = get_user_contact(username)
-    #         chat.participants.add(contact)
-    #     chat.save()
-    #     return chat
+    def get_conversation(self, obj):
+        return str(obj.conversation.id)
+
+    def get_from_user(self, obj):
+        return UserSerializer(obj.from_user).data
+
+    def get_to_user(self, obj):
+        return UserSerializer(obj.to_user).data
 
 
-# do in python shell to see how to serialize data
+class ConversationSerializer(serializers.ModelSerializer):
+    other_user = serializers.SerializerMethodField()
+    last_message = serializers.SerializerMethodField()
 
-# from chat.models import Chat
-# from chat.api.serializers import ChatSerializer
-# chat = Chat.objects.get(id=1)
-# s = ChatSerializer(instance=chat)
-# s
-# s.data
+    class Meta:
+        model = Conversation
+        fields = ("id", "name", "other_user", "last_message")
+
+    def get_last_message(self, obj):
+        messages = obj.messages.all().order_by("-timestamp")
+        if not messages.exists():
+            return None
+        message = messages[0]
+        return MessageSerializer(message).data
+
+    def get_other_user(self, obj):
+        usernames = obj.name.split("__")
+        context = {}
+        for username in usernames:
+            if username != self.context["user"].username:
+                # This is the other participant
+                other_user = User.objects.get(username=username)
+                return UserSerializer(other_user, context=context).data
