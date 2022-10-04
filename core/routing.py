@@ -3,7 +3,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 
 from chat import routing
-from .wsgi import *
+from .wsgi import get_wsgi_application
 
 from .websocket import websocket_application
 
